@@ -31,7 +31,6 @@ def generate_factory_data(n=1000):
     return pd.DataFrame(data, columns=["industry_type", "sox_ppm", "nox_ppm", "co2_ppm", "production_volume", "scrubber_efficiency", "plant_age", "lat", "lon", "compliance"])
 
 # Prepare data
-np.random.seed(42)
 df = generate_factory_data()
 le = LabelEncoder()
 df['industry_encoded'] = le.fit_transform(df['industry_type'])
@@ -50,6 +49,7 @@ st.title("🏭 Factory Emission Compliance Predictor")
 st.markdown("Enter factory details below or upload a CSV to check compliance.")
 
 # User input section
+factory_name = st.text_input("Factory Name")
 industry = st.selectbox("Industry Type", ["Textile", "Chemical", "Steel", "Cement", "Pharmaceutical"])
 sox = st.slider("SOx level (ppm)", 50, 600, 200)
 nox = st.slider("NOx level (ppm)", 30, 500, 150)
@@ -63,7 +63,7 @@ if st.button("Predict Compliance"):
     input_data = np.array([[industry_encoded, sox, nox, co2, volume, scrub, age]])
     pred = model.predict(input_data)[0]
     result = "✅ Compliant" if pred == 0 else "❌ Non-compliant"
-    st.subheader(f"Prediction: {result}")
+    st.subheader(f"Prediction for {factory_name or 'this factory'}: {result}")
     proba = model.predict_proba(input_data)[0][pred]
     st.caption(f"Model confidence: {proba*100:.2f}%")
 
