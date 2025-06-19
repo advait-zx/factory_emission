@@ -4,6 +4,8 @@ import numpy as np
 import pickle
 import pydeck as pdk
 import altair as alt
+import smtplib
+from email.mime.text import MIMEText
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -50,6 +52,7 @@ st.markdown("Enter factory details below or upload a CSV to check compliance.")
 
 # User input section
 factory_name = st.text_input("Factory Name")
+email = st.text_input("Email Address to Send Report")
 industry = st.selectbox("Industry Type", ["Textile", "Chemical", "Steel", "Cement", "Pharmaceutical"])
 sox = st.slider("SOx level (ppm)", 50, 600, 200)
 nox = st.slider("NOx level (ppm)", 30, 500, 150)
@@ -57,6 +60,25 @@ co2 = st.slider("CO₂ level (ppm)", 100, 1000, 400)
 volume = st.number_input("Production Volume (tons/month)", 100.0, 5000.0, 1200.0)
 scrub = st.slider("Scrubber Efficiency (%)", 40, 100, 75)
 age = st.slider("Plant Age (years)", 1, 50, 15)
+
+# Email report function
+def send_email_report(to_email, subject, body):
+    try:
+        sender = "your_email@gmail.com"
+        password = "your_app_password"
+
+        msg = MIMEText(body)
+        msg["Subject"] = subject
+        msg["From"] = sender
+        msg["To"] = to_email
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender, password)
+            server.sendmail(sender, to_email, msg.as_string())
+        return True
+    except Exception as e:
+        st.error(f"Email failed to send: {e}")
+        return False
 
 if st.button("Predict Compliance"):
     industry_encoded = le.transform([industry])[0]
@@ -73,10 +95,26 @@ if st.button("Predict Compliance"):
     if nox > 300: reasons.append("High NOx")
     if co2 > 800: reasons.append("High CO₂")
     if scrub < 70: reasons.append("Low scrubber efficiency")
+
+    suggestions = [
+        "Ensure scrubber maintenance and efficiency above 70%.",
+        "Consider upgrading filtration equipment.",
+        "Regularly monitor and log emission levels.",
+    ]
+
     if pred == 1:
         st.markdown("**Reason(s) for Non-compliance:**")
         for r in reasons:
             st.markdown(f"- {r}")
+
+    # Send report to email
+    if email:
+        email_body = f"Factory Name: {factory_name or 'N/A'}\nResult: {result}\n\nReasons:\n- " + "\n- ".join(reasons)
+        if pred == 1:
+            email_body += "\n\nSuggestions:\n- " + "\n- ".join(suggestions)
+        sent = send_email_report(email, f"Emission Compliance Report: {factory_name or 'Factory'}", email_body)
+        if sent:
+            st.success(f"Report sent to {email}")
 
 # CSV Upload for batch prediction
 st.header("📥 Upload CSV for Batch Prediction")
