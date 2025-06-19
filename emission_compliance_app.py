@@ -65,7 +65,7 @@ age = st.slider("Plant Age (years)", 1, 50, 15)
 def send_email_report(to_email, subject, body):
     try:
         sender = "factoryemissionreport@gmail.com"
-        password = "factoryemit12*"
+        password = "lkpn kkbk ybby vvmb"
 
         msg = MIMEText(body)
         msg["Subject"] = subject
