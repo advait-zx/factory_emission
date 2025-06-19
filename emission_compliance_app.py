@@ -17,11 +17,11 @@ def generate_factory_data(n=1000):
     data = []
     for _ in range(n):
         industry = np.random.choice(industry_types)
-        sox = np.round(np.random.uniform(50, 600), 2)
-        nox = np.round(np.random.uniform(30, 500), 2)
+        sox = np.round(np.random.uniform(50, 1000), 2)
+        nox = np.round(np.random.uniform(30, 1000), 2)
         co2 = np.round(np.random.uniform(100, 1000), 2)
         volume = np.round(np.random.uniform(100, 5000), 2)
-        scrub = np.round(np.random.uniform(40, 100), 2)
+        scrub = np.round(np.random.uniform(0, 100), 2)
         age = np.random.randint(1, 51)
         lat = np.random.uniform(18.4, 19.0)  # Random lat for map demo
         lon = np.random.uniform(73.7, 74.2)  # Random lon for map demo
